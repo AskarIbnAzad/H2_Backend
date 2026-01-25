@@ -21,6 +21,9 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+//Askart Routes
+
+
 Route::get('/disease-data', [ArticleController::class, 'getData']);
 
 Route::get('/get-all-disease/', [AdminController::class, 'getDisease']);
