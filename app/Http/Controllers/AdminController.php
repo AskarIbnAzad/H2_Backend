@@ -1817,6 +1817,7 @@ class AdminController extends Controller
         $transformed = $authors->map(function ($author) {
             return [
                 'id' => $author->id,
+                'orcid' => $author->orcid,
                 'name' => $author->name,
                 'is_featured' => $author->is_featured ? 1 : 0,
                 'article_count' => $author->articles_count,
