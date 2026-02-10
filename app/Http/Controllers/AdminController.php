@@ -673,6 +673,8 @@ class AdminController extends Controller
             'status' => true,
             'authors' => $authors,
             'articlesMap' => $articlesMap,
+//            'parents' => $authors,
+
         ]);
     }
 
@@ -1802,7 +1804,6 @@ class AdminController extends Controller
 
     private function exploreAuthors($req)
     {
-        // Get all authors with article counts
         $authors = VerifiedAuthor::withCount([
             'articles' => function ($q) {
                 $q->where('status', 'Verified');
@@ -1810,8 +1811,16 @@ class AdminController extends Controller
             'children',
         ])
             ->with('children')
+            ->where(function ($query) {
+                $query->whereNull('parent_id') // Condition for parent_id being null
+                ->orWhere(function ($query) {
+                    $query->whereNotNull('parent_id')
+                        ->where('is_featured', 1); // Condition for parent_id not null and is_featured true
+                });
+            })
             ->orderBy('articles_count', 'desc')
             ->get();
+
 
         // Transform to exact old format
         $transformed = $authors->map(function ($author) {
