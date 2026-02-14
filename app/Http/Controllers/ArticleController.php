@@ -401,36 +401,49 @@ class ArticleController extends Controller
             $query->where('is_highlighted', 1);
         }
 
-        // Apply search if provided
-        if (! empty($searchTerms) && is_array($searchTerms)) {
-            $query->where(function ($q) use ($searchTerms) {
+//        // Apply search if provided
+//        if (! empty($searchTerms) && is_array($searchTerms)) {
+//            $query->where(function ($q) use ($searchTerms) {
+//                foreach ($searchTerms as $searchTerm) {
+//                    if (empty($searchTerm)) {
+//                        continue;
+//                    }
+//
+//                    $q->where(function ($subQ) use ($searchTerm) {
+//                        // Search in MHID, DOI, PMID
+//                        $subQ->where('mhid', 'like', "%{$searchTerm}%")
+//                            ->orWhere('doi', 'like', "%{$searchTerm}%")
+//                            ->orWhere('pmid', 'like', "%{$searchTerm}%")
+//
+//                            // Search in publication details
+//                            ->orWhereHas('publicationDetail', function ($pubQ) use ($searchTerm) {
+//                                $pubQ->where('title', 'like', "%{$searchTerm}%")
+//                                    ->orWhere('abstract', 'like', "%{$searchTerm}%");
+//                            })
+//
+//                            // Search in authors
+//                            ->orWhereHas('authors', function ($authQ) use ($searchTerm) {
+//                                $authQ->where('verified_authors.name', 'like', "%{$searchTerm}%");
+//                            })
+//
+//                            // Search in journal
+//                            ->orWhereHas('publicationDetail.journal', function ($journalQ) use ($searchTerm) {
+//                                $journalQ->where('journals.name', 'like', "%{$searchTerm}%");
+//                            });
+//                    });
+//                }
+//            });
+//        }
+
+        // Apply search if provided (Title only)
+        if (!empty($searchTerms) && is_array($searchTerms)) {
+            $query->whereHas('publicationDetail', function ($q) use ($searchTerms) {
                 foreach ($searchTerms as $searchTerm) {
                     if (empty($searchTerm)) {
                         continue;
                     }
 
-                    $q->where(function ($subQ) use ($searchTerm) {
-                        // Search in MHID, DOI, PMID
-                        $subQ->where('mhid', 'like', "%{$searchTerm}%")
-                            ->orWhere('doi', 'like', "%{$searchTerm}%")
-                            ->orWhere('pmid', 'like', "%{$searchTerm}%")
-
-                            // Search in publication details
-                            ->orWhereHas('publicationDetail', function ($pubQ) use ($searchTerm) {
-                                $pubQ->where('title', 'like', "%{$searchTerm}%")
-                                    ->orWhere('abstract', 'like', "%{$searchTerm}%");
-                            })
-
-                            // Search in authors
-                            ->orWhereHas('authors', function ($authQ) use ($searchTerm) {
-                                $authQ->where('verified_authors.name', 'like', "%{$searchTerm}%");
-                            })
-
-                            // Search in journal
-                            ->orWhereHas('publicationDetail.journal', function ($journalQ) use ($searchTerm) {
-                                $journalQ->where('journals.name', 'like', "%{$searchTerm}%");
-                            });
-                    });
+                    $q->where('title', 'like', "%{$searchTerm}%");
                 }
             });
         }
