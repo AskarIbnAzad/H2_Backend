@@ -396,6 +396,11 @@ class ArticleController extends Controller
         $status = $req->input('status', 'Verified');
         $query->where('status', $status);
 
+        // Highlighted filter (frontend sends: isHighlightArticle: true)
+        if ($req->boolean('isHighlightArticle')) {
+            $query->where('is_highlighted', 1);
+        }
+
         // Apply search if provided
         if (! empty($searchTerms) && is_array($searchTerms)) {
             $query->where(function ($q) use ($searchTerms) {
@@ -482,6 +487,7 @@ class ArticleController extends Controller
             'logic_type' => $isAnd ? 'AND' : 'OR',
             'total_filters' => count($filters),
             'search_terms' => $searchTerms,
+            'isHighlightArticle' => $req->boolean('isHighlightArticle'),
 
         ]);
     }
@@ -1263,12 +1269,27 @@ class ArticleController extends Controller
             ->pluck('year');
 
         // Authors
+//        $authors = VerifiedAuthor::withCount(['articles' => function ($q) {
+//            $q->where('status', 'Verified');
+//        }])
+//            ->having('articles_count', '>', 0)
+//            ->orderBy('name')
+//            ->get();
+
         $authors = VerifiedAuthor::withCount(['articles' => function ($q) {
             $q->where('status', 'Verified');
         }])
-            ->having('articles_count', '>', 0)
+            ->where(function ($q) {
+                $q->whereNull('parent_id') // 1) parent_id is null
+                ->orWhere(function ($q) {
+                    $q->whereNotNull('parent_id') // 2) parent is not null
+                    ->where('is_featured', 1);  //    and author is featured
+                });
+            })
+            ->having('articles_count', '>', 0) // 3) keep previous logic
             ->orderBy('name')
             ->get();
+
 
         return response()->json([
             'status' => true,
@@ -2755,11 +2776,11 @@ class ArticleController extends Controller
    public function articleSubmit(Request $req)
     {
         DB::beginTransaction();
-        
+
         try {
             $isUpdate = $req->has('article_id') && $req->article_id;
             $article = null;
-            
+
             if ($isUpdate) {
                 $article = Article::with([
                     'inhalationProtocols',
@@ -2778,7 +2799,7 @@ class ArticleController extends Controller
                     'claims',
                     'pdfFiles' // ✅ ADD THIS
                 ])->findOrFail($req->article_id);
-                
+
             } else {
                 $article = Article::create([
                     'mhid' => $this->generateMhid(),
@@ -2811,7 +2832,7 @@ class ArticleController extends Controller
                     // ✅ Store important data before deletion
                     $articleId = $article->id;
                     $articleMhid = $article->mhid;
-                    
+
                     // Delete all protocol relationships
                     $article->inhalationProtocols()->delete();
                     $article->ingestionProtocols()->delete();
@@ -2821,7 +2842,7 @@ class ArticleController extends Controller
                     $article->outcomes()->delete();
                     $article->biomarkers()->delete();
                     $article->claims()->delete();
-                    
+
                     // Detach many-to-many relationships
                     $article->species()->detach();
                     $article->administrationMethods()->detach();
@@ -2830,8 +2851,8 @@ class ArticleController extends Controller
                     $article->systems()->detach();
                     $article->diseases()->detach();
                     $article->researchTopics()->detach();
-                    
-                    
+
+
                     // Delete one-to-one relationships
                     if ($article->publicationDetail) {
                         $article->publicationDetail->delete();
@@ -2845,24 +2866,24 @@ class ArticleController extends Controller
                     if ($article->highlightInfo) {
                         $article->highlightInfo->delete();
                     }
-                    
+
                     // ✅ DON'T DELETE THE ARTICLE!
                     // Pass existing article to transformation
                     $article = $this->transformService->transformToNormalized($oldArticleData, $article);
-                    
+
                     // ✅ VERIFY article ID didn't change
                     if ($article->id !== $articleId) {
                         throw new \Exception("Critical error: Article ID changed during update from {$articleId} to {$article->id}");
                     }
-                    
-                    
-                    
+
+
+
                 } else {
                     // CREATE MODE
                     $article->delete();
                     $article = $this->transformService->transformToNormalized($oldArticleData);
-                    
-                    
+
+
                 }
             }
 
@@ -2886,8 +2907,8 @@ class ArticleController extends Controller
 
         } catch (\Exception $e) {
             DB::rollBack();
-            
-            
+
+
 
             return response()->json([
                 'status' => false,
