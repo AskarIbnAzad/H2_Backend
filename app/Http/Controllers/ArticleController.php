@@ -463,6 +463,21 @@ class ArticleController extends Controller
             'authors' => $req->input('authors', []),
         ];
 
+        // ---------- NEW: expand parent author -> include all child authors ----------
+        if (!empty($filters['authors']) && is_array($filters['authors'])) {
+            $authorIds = array_values(array_unique(array_filter($filters['authors'])));
+
+            if (!empty($authorIds)) {
+                // One-level children (parent_id in selected authors)
+                $childIds = \App\Models\VerifiedAuthor::whereIn('parent_id', $authorIds)
+                    ->pluck('id')
+                    ->toArray();
+
+                $filters['authors'] = array_values(array_unique(array_merge($authorIds, $childIds)));
+            }
+        }
+        // --------------------------------------------------------------------------
+
         // Remove empty filters
         $filters = array_filter($filters, function ($value) {
             return ! empty($value) && is_array($value);
