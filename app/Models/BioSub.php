@@ -11,7 +11,7 @@ class BioSub extends Model
 {
     protected $table = 'bio_sub';
 
-    protected $fillable = ['name', 'status'];
+    protected $fillable = ['name', 'status', 'parent_id'];
 
     // Many-to-Many with Categories
     public function categories()

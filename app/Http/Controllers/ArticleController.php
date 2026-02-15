@@ -2692,6 +2692,7 @@ class ArticleController extends Controller
         $biomarker = BioSub::create([
             'name' => $req->sub,
             'status' => 'Pending',
+            'parent_id' => $req->parent_id,
         ]);
 
         // Add categories if provided
@@ -2721,6 +2722,7 @@ class ArticleController extends Controller
         $biomarker->update([
             'name' => $req->name ?? $biomarker->name,
             'status' => $req->status ?? $biomarker->status,
+            'parent_id' => $req->parent_id ?? $biomarker->parent_id,
         ]);
 
         // Update categories if provided
