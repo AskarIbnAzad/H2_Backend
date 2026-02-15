@@ -2649,6 +2649,7 @@ class ArticleController extends Controller
             $biomarkersWithUsage[] = [
                 'id' => $biomarker->id,
                 'name' => $biomarker->name,
+                'parent_id' => $biomarker->parent_id,
                 'categories' => $biomarker->categories->pluck('name')->toArray(),
                 'article_count' => $articleCount,
                 'article_ids' => $articleIds,
@@ -2692,11 +2693,11 @@ class ArticleController extends Controller
         $biomarker = BioSub::create([
             'name' => $req->sub,
             'status' => 'Pending',
-            'parent_id' => $req->parent_id,
+            'parent_id' => $req->parent_id ?? null,
         ]);
 
         // Add categories if provided
-        if ($req->has('categories') && is_array($req->categoryName)) {
+        if ($req->has('categoryName') && is_array($req->categoryName)) {
             $categoryIds = BioCategory::whereIn('name', $req->categoryName)->pluck('id');
 
             foreach ($categoryIds as $catId) {
