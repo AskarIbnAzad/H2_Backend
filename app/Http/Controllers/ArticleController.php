@@ -280,6 +280,23 @@ class ArticleController extends Controller
      */
     public function getArticleByMhid($mhid)
     {
+//        $article = Article::where('mhid', $mhid)
+//            ->with([
+//                'publicationDetail.journal',
+//                'authors',
+//                'keywords',
+//                'countries',
+//                'species',
+//                'diseases',
+//                'organs',
+//                'systems',
+//                'studyTypes',
+//                'researchTopics',
+//                'administrationMethods',
+//                'cellCultureProtocols',
+//                'biomarkers.biomarker',
+//            ])->firstOrFail();
+
         $article = Article::where('mhid', $mhid)
             ->with([
                 'publicationDetail.journal',
@@ -294,8 +311,14 @@ class ArticleController extends Controller
                 'researchTopics',
                 'administrationMethods',
                 'cellCultureProtocols',
-                'biomarkers.biomarker',
-            ])->firstOrFail();
+                'biomarkers' => function ($q) {
+                    $q->whereHas('biomarker', function ($qq) {
+                        $qq->whereNull('parent_id');
+                    })->with('biomarker'); // load the BioSub data too
+                },
+            ])
+            ->firstOrFail();
+
 
         // Get related articles (same species or diseases)
         $relatedArticles = Article::where('id', '!=', $article->id)
