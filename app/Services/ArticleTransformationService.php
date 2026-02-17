@@ -144,17 +144,17 @@ class ArticleTransformationService
             DB::commit();
 
             return $article->load([
-                'publicationDetail', 
-                'authors', 
-                'keywords', 
+                'publicationDetail',
+                'authors',
+                'keywords',
                 'countries',
-                'studyTypes', 
-                'species', 
-                'organs', 
-                'systems', 
+                'studyTypes',
+                'species',
+                'organs',
+                'systems',
                 'diseases',
-                'researchTopics', 
-                'administrationMethods', 
+                'researchTopics',
+                'administrationMethods',
                 'biomarkers',
                 'studyDurations',
                 'experimentalDesign',
@@ -497,7 +497,7 @@ class ArticleTransformationService
 
         // ✅ CHANGED: Build pivot data array for sync
         $authorPivotData = [];
-        
+
         foreach ($authors as $index => $authorData) {
             if (is_string($authorData)) {
                 $authorData = ['name' => $authorData];
@@ -528,7 +528,7 @@ class ArticleTransformationService
         }
 
         $keywordsArray = array_map('trim', explode(',', $keywordsString));
-        
+
         // ✅ CHANGED: Build pivot data array for sync
         $keywordPivotData = [];
 
@@ -538,11 +538,11 @@ class ArticleTransformationService
             }
 
             $keyword = Keyword::firstOrCreate(['keyword' => $keywordName]);
-            
+
             // ✅ CHANGED: Build pivot data array
             $keywordPivotData[$keyword->id] = ['verified' => false];
         }
-        
+
         // ✅ CHANGED: Use sync instead of attach
         $article->keywords()->sync($keywordPivotData);
     }
@@ -608,24 +608,145 @@ class ArticleTransformationService
         }
     }
 
+//    private function attachStudyTypes($article, $studyTypes)
+//    {
+//        if (empty($studyTypes) || ! is_array($studyTypes)) {
+//            return;
+//        }
+//
+//        foreach ($studyTypes as $typeData) {
+//            $typeName = is_array($typeData) ? ($typeData['name'] ?? '') : $typeData;
+//            if (empty($typeName)) {
+//                continue;
+//            }
+//
+//            $studyType = StudyType::firstOrCreate(['name' => $typeName]);
+//            $article->studyTypes()->attach($studyType->id, [
+//                'verified' => is_array($typeData) ? (($typeData['status'] ?? 'Unverified') === 'Verified') : false,
+//            ]);
+//        }
+//    }
+
     private function attachStudyTypes($article, $studyTypes)
     {
         if (empty($studyTypes) || ! is_array($studyTypes)) {
             return;
         }
 
-        foreach ($studyTypes as $typeData) {
-            $typeName = is_array($typeData) ? ($typeData['name'] ?? '') : $typeData;
-            if (empty($typeName)) {
-                continue;
+        // 1) Normalize input to a collection of [id?/name?, status?]
+        $normalized = collect($studyTypes)->map(function ($typeData) {
+            // Scalar int => assume it's an ID
+            if (is_int($typeData)) {
+                return [
+                    'id'     => $typeData,
+                    'name'   => null,
+                    'status' => null,
+                ];
             }
 
-            $studyType = StudyType::firstOrCreate(['name' => $typeName]);
-            $article->studyTypes()->attach($studyType->id, [
-                'verified' => is_array($typeData) ? (($typeData['status'] ?? 'Unverified') === 'Verified') : false,
-            ]);
+            // Scalar string => assume it's a name
+            if (is_string($typeData)) {
+                return [
+                    'id'     => null,
+                    'name'   => trim($typeData),
+                    'status' => null,
+                ];
+            }
+
+            // Array => try to read different possible keys
+            if (is_array($typeData)) {
+                $id = $typeData['id'] ?? null;
+
+                // Try name/label/rawValue in order
+                $name = $typeData['name']
+                    ?? $typeData['label']
+                    ?? $typeData['rawValue']
+                    ?? null;
+
+                $status = $typeData['status'] ?? null;
+
+                if (! $id && ! $name) {
+                    // Nothing usable
+                    return null;
+                }
+
+                return [
+                    'id'     => $id,
+                    'name'   => $name ? trim($name) : null,
+                    'status' => $status,
+                ];
+            }
+
+            // Unhandled type
+            return null;
+        })
+            ->filter() // remove nulls
+            ->values();
+
+        if ($normalized->isEmpty()) {
+            // If you want: also detach all existing when empty
+            // $article->studyTypes()->detach();
+            return;
+        }
+
+        // 2) De-duplicate by "id if present, otherwise name"
+        $unique = $normalized->unique(function ($item) {
+            if (! empty($item['id'])) {
+                return 'id:' . $item['id'];
+            }
+
+            return 'name:' . mb_strtolower($item['name']);
+        });
+
+        // 3) Build data for sync (id => ['verified' => bool])
+        $syncData = [];
+
+        foreach ($unique as $item) {
+            $studyType = null;
+
+            if (! empty($item['id'])) {
+                // If ID given, use it directly (only if exists)
+                $studyType = StudyType::find($item['id']);
+
+                // If not found by ID but we have a name, fallback to name
+                if (! $studyType && ! empty($item['name'])) {
+                    $studyType = StudyType::firstOrCreate(['name' => $item['name']]);
+                }
+            } elseif (! empty($item['name'])) {
+                // Only name provided
+                $studyType = StudyType::firstOrCreate(['name' => $item['name']]);
+            }
+
+            if (! $studyType) {
+                continue; // nothing to attach
+            }
+
+            $verified = false;
+            if (! empty($item['status'])) {
+                $verified = ($item['status'] === 'Verified');
+            }
+
+            // If same ID comes twice with different statuses, OR them
+            if (isset($syncData[$studyType->id])) {
+                $syncData[$studyType->id]['verified'] =
+                    $syncData[$studyType->id]['verified'] || $verified;
+            } else {
+                $syncData[$studyType->id] = [
+                    'verified' => $verified,
+                ];
+            }
+        }
+
+        if (! empty($syncData)) {
+            // 4) This WILL remove any studyTypes that are not in $syncData
+            $article->studyTypes()->sync($syncData);
+        } else {
+            // If somehow nothing left after normalization, detach all
+            $article->studyTypes()->detach();
         }
     }
+
+
 
     private function attachStudyCategories($article, $articleGeneralData)
     {
@@ -849,54 +970,158 @@ class ArticleTransformationService
         }
     }
 
+//    private function attachTimingTreatments($article, $articleGeneralData)
+//    {
+//        $timingFields = [
+//            'timingTreatmentInVivo' => 'in_vivo',
+//            'timingTreatmentInVitro' => 'in_vitro',
+//            'timingTreatmentExVivo' => 'ex_vivo',
+//        ];
+//
+//        foreach ($timingFields as $field => $context) {
+//            if (empty($articleGeneralData[$field])) {
+//                continue;
+//            }
+//
+//            $timings = is_array($articleGeneralData[$field]) ? $articleGeneralData[$field] : [$articleGeneralData[$field]];
+//
+//            foreach ($timings as $timingData) {
+//                $timingName = is_array($timingData) ? ($timingData['name'] ?? '') : $timingData;
+//                if (empty($timingName)) {
+//                    continue;
+//                }
+//
+//                $timing = \App\Models\TimingTreatment::firstOrCreate([
+//                    'name' => $timingName,
+//                    'context' => $context,
+//                ]);
+//
+//                $article->timingTreatments()->attach($timing->id, [
+//                    'verified' => is_array($timingData) ? (($timingData['status'] ?? 'Unverified') === 'Verified') : false,
+//                ]);
+//            }
+//        }
+//    }
+
     private function attachTimingTreatments($article, $articleGeneralData)
     {
         $timingFields = [
-            'timingTreatmentInVivo' => 'in_vivo',
+            'timingTreatmentInVivo'  => 'in_vivo',
             'timingTreatmentInVitro' => 'in_vitro',
-            'timingTreatmentExVivo' => 'ex_vivo',
+            'timingTreatmentExVivo'  => 'ex_vivo',
         ];
+
+        // timing_treatment_id => ['verified' => bool]
+        $attachData = [];
 
         foreach ($timingFields as $field => $context) {
             if (empty($articleGeneralData[$field])) {
                 continue;
             }
 
-            $timings = is_array($articleGeneralData[$field]) ? $articleGeneralData[$field] : [$articleGeneralData[$field]];
+            $timings = is_array($articleGeneralData[$field])
+                ? $articleGeneralData[$field]
+                : [$articleGeneralData[$field]];
 
             foreach ($timings as $timingData) {
-                $timingName = is_array($timingData) ? ($timingData['name'] ?? '') : $timingData;
+                $timingName = is_array($timingData)
+                    ? ($timingData['name'] ?? '')
+                    : $timingData;
+
                 if (empty($timingName)) {
                     continue;
                 }
 
+                // Find or create timing row with name + context
                 $timing = \App\Models\TimingTreatment::firstOrCreate([
-                    'name' => $timingName,
+                    'name'    => $timingName,
                     'context' => $context,
                 ]);
 
-                $article->timingTreatments()->attach($timing->id, [
-                    'verified' => is_array($timingData) ? (($timingData['status'] ?? 'Unverified') === 'Verified') : false,
-                ]);
+                // Determine verified flag
+                $verified = false;
+                if (is_array($timingData)) {
+                    $verified = (($timingData['status'] ?? 'Unverified') === 'Verified');
+                }
+
+                // If same timing appears multiple times, keep verified = true if any is true
+                if (isset($attachData[$timing->id])) {
+                    $attachData[$timing->id]['verified'] =
+                        $attachData[$timing->id]['verified'] || $verified;
+                } else {
+                    $attachData[$timing->id] = [
+                        'verified' => $verified,
+                    ];
+                }
             }
+        }
+
+        // Finally attach all in one go without creating duplicates
+        if (! empty($attachData)) {
+            $article->timingTreatments()->syncWithoutDetaching($attachData);
         }
     }
 
+
+//    private function attachOutcomeTypes($article, $outcomeTypes)
+//    {
+//        if (empty($outcomeTypes) || ! is_array($outcomeTypes)) {
+//            return;
+//        }
+//
+//        foreach ($outcomeTypes as $typeName) {
+//            if (empty($typeName)) {
+//                continue;
+//            }
+//
+//            $outcomeType = \App\Models\OutcomeType::firstOrCreate(['name' => $typeName]);
+//            $article->outcomeTypes()->attach($outcomeType->id, ['verified' => false]);
+//        }
+//    }
+
     private function attachOutcomeTypes($article, $outcomeTypes)
     {
-        if (empty($outcomeTypes) || ! is_array($outcomeTypes)) {
+        if (empty($outcomeTypes)) {
             return;
         }
 
-        foreach ($outcomeTypes as $typeName) {
+        // Normalize: allow single value or array
+        $items = is_array($outcomeTypes) ? $outcomeTypes : [$outcomeTypes];
+
+        // outcome_type_id => ['verified' => bool]
+        $attachData = [];
+
+        foreach ($items as $item) {
+            // Support both "plain string" and "array with name"
+            if (is_array($item)) {
+                $typeName = $item['name'] ?? ($item['label'] ?? null);
+                $verified = (($item['status'] ?? 'Unverified') === 'Verified');
+            } else {
+                $typeName = $item;
+                $verified = false;
+            }
+
             if (empty($typeName)) {
                 continue;
             }
 
-            $outcomeType = \App\Models\OutcomeType::firstOrCreate(['name' => $typeName]);
-            $article->outcomeTypes()->attach($outcomeType->id, ['verified' => false]);
+            $outcomeType = \App\Models\OutcomeType::firstOrCreate([
+                'name' => $typeName,
+            ]);
+
+            // Using the ID as key automatically removes duplicates
+            $attachData[$outcomeType->id] = [
+                'verified' => $verified,
+            ];
+        }
+
+        if (! empty($attachData)) {
+            // This will only insert new pairs and keep existing ones
+            $article->outcomeTypes()->syncWithoutDetaching($attachData);
         }
     }
+
+
 
     private function createOutcome($article, $outcomeData)
     {
