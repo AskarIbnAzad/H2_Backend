@@ -389,6 +389,7 @@ class ArticleController extends Controller
      */
     public function listArticlesMain(Request $req)
     {
+//        Log::info('$req', $req->suboption);
         // Get parameters
         $page = $req->input('page', 1);
         $perPage = $req->input('per_page', 20);
@@ -516,6 +517,44 @@ class ArticleController extends Controller
 
         // Apply ordering
         $query->orderBy('created_at', $orderBy);
+
+
+
+        //###################################################################
+        // Handle study category suboptions (e.g. "in vivo" => ["Human Study", "Animal Study"])
+        $subOptions = $req->suboption ? $req->suboption: [];
+
+        // Map request keys to DB enum values (adjust the right side to match your enum exactly)
+        $categoryTypeMap = [
+            'in vivo' => 'in_vivo',
+            'non-experimental (review)' => 'non_experimental_review', // change to your real enum
+        ];
+
+        if (!empty($subOptions) && is_array($subOptions)) {
+            Log::info('it works');
+            $query->where(function ($articleQ) use ($subOptions, $categoryTypeMap) {
+                foreach ($subOptions as $typeLabel => $names) {
+                    if (empty($names) || !is_array($names)) {
+                        continue;
+                    }
+
+                    // If we don't know how to map this label, skip
+                    if (!isset($categoryTypeMap[$typeLabel])) {
+                        continue;
+                    }
+
+                    $categoryType = $categoryTypeMap[$typeLabel];
+
+                    // For each group (e.g. "in vivo") we OR the condition:
+                    $articleQ->orWhereHas('studyCategories', function ($scQ) use ($names, $categoryType) {
+                        $scQ->where('category_type', $categoryType)
+                            ->whereIn('name', $names);
+                    });
+                }
+            });
+        }
+
+        //###################################################################
 
         // Paginate
         $articles = $query->paginate($perPage, ['*'], 'page', $page);
