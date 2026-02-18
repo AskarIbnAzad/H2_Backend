@@ -219,7 +219,7 @@ class Article extends Model
     {
         return $this->hasMany(ArticleStudyDuration::class);
     }
-    
+
 
     // Experimental Design
     public function experimentalDesign()
@@ -281,14 +281,14 @@ class Article extends Model
 
 
  // One-to-Many Relationships (use plural names)
-   
-    
+
+
     public function outcomes()  // ✅ Plural
     {
         return $this->hasMany(ArticleOutcome::class);
     }
-    
-  
+
+
 
 
 
@@ -324,6 +324,7 @@ class Article extends Model
             'article_id',
             'author_id'
         )
+            ->whereNull('verified_authors.parent_id')
             ->withPivot('author_order', 'affiliation', 'is_corresponding', 'verified')
             ->withTimestamps()
             ->orderBy('article_authors.author_order');

@@ -1379,14 +1379,14 @@ class ArticleController extends Controller
                 'species' => $speciesTree,
                 'diseases' => $diseaseTree,
                 'countries' => $countryTree,
-                'organs' => $organs->take(5),
-                'systems' => $systems->take(5),
+                'organs' => $organs,
+                'systems' => $systems,
                 'studyTypes' => $studyTypes,
-                'researchTopics' => $researchTopics->take(5),
-                'administrationMethods' => $methods->take(5),
-                'biomarkers' => $biomarkers->take(5),
-                'years' => $years->take(5),
-                'authors' => $authors->take(5), // Limit to top 100
+                'researchTopics' => $researchTopics,
+                'administrationMethods' => $methods,
+                'biomarkers' => $biomarkers,
+                'years' => $years,
+                'authors' => $authors, // Limit to top 100
             ],
         ]);
     }
