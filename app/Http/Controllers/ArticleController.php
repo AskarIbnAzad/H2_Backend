@@ -2860,6 +2860,7 @@ class ArticleController extends Controller
 
    public function articleSubmit(Request $req)
     {
+        Log::info('show article data', $req->all());
         DB::beginTransaction();
 
         try {
@@ -2882,7 +2883,7 @@ class ArticleController extends Controller
                     'outcomes',
                     'biomarkers',
                     'claims',
-                    'pdfFiles' // ✅ ADD THIS
+                    'pdfFiles'
                 ])->findOrFail($req->article_id);
 
             } else {
@@ -2936,6 +2937,7 @@ class ArticleController extends Controller
                     $article->systems()->detach();
                     $article->diseases()->detach();
                     $article->researchTopics()->detach();
+                    $article->studyCategories()->detach();
 
 
                     // Delete one-to-one relationships
