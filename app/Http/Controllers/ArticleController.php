@@ -2860,7 +2860,7 @@ class ArticleController extends Controller
 
    public function articleSubmit(Request $req)
     {
-        Log::info('show article data', $req->all());
+//        Log::info("show article data2 :\n" . print_r($req->all(), true));
         DB::beginTransaction();
 
         try {
@@ -2901,8 +2901,8 @@ class ArticleController extends Controller
 
                 $oldArticleData = (object) [
                     'mhid' => $article->mhid,
-                    'doi' => $article->doi,
-                    'pmid' => $article->pmid,
+                    'doi'  => $req->publicData['doi']['name']  ?? $article->doi,
+                    'pmid' => $req->publicData['pmid']['name'] ?? $article->pmid,
                     'status' => $article->status,
                     'publicData' => $req->publicData ?? [],
                     'articleGeneralData' => $req->articleGeneralData ?? [],
