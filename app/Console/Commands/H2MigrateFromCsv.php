@@ -83,7 +83,7 @@ class H2MigrateFromCsv extends Command
             $this->migratePStudyType("{$basePath}/p_study_type.csv");
             $this->migratePResearchTopics("{$basePath}/p_research_topics.csv");
             $this->migratePAdministration("{$basePath}/p_administration.csv");
-            $this->migratePBiomaker("{$basePath}/p_biomaker.csv");
+//            $this->migratePBiomaker("{$basePath}/p_biomaker.csv");
 
             /*
              * OTHER
@@ -175,8 +175,9 @@ class H2MigrateFromCsv extends Command
                 'id'         => (int)$row['id'],
                 'name'       => $row['name'],
                 'status'     => 'Active',
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('administration_methods', $batch);
         }
@@ -211,8 +212,9 @@ class H2MigrateFromCsv extends Command
                 'name'       => $row['name'],
                 'parent_id'  => $row['parent_id'] !== '' ? (int)$row['parent_id'] : null,
                 'status'     => $this->mapCountryStatus($row['status'] ?? null),
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('countries', $batch);
         }
@@ -251,8 +253,9 @@ class H2MigrateFromCsv extends Command
                 'name'       => $row['name'],
                 'parent_id'  => $row['parent_id'] !== '' ? (int)$row['parent_id'] : null,
                 'status'     => 'Active',
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('diseases', $batch);
         }
@@ -283,8 +286,9 @@ class H2MigrateFromCsv extends Command
                 'name'       => $row['name'],
                 'parent_id'  => $row['parent_id'] !== '' ? (int)$row['parent_id'] : null,
                 'status'     => 'Active',
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('species', $batch);
         }
@@ -313,10 +317,12 @@ class H2MigrateFromCsv extends Command
             $batch[] = [
                 'id'         => (int)$row['id'],
                 'name'       => $row['name'],
-                'parent_id'  => $row['parent_id'] !== '' ? (int)$row['parent_id'] : null,
+                'parent_id'  => null,
+//                'parent_id'  => $row['parent_id'] !== '' ? (int)$row['parent_id'] : null,
                 'status'     => 'Active',
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('systems', $batch);
         }
@@ -345,10 +351,12 @@ class H2MigrateFromCsv extends Command
             $batch[] = [
                 'id'         => (int)$row['id'],
                 'name'       => $row['name'],
-                'parent_id'  => $row['parent_id'] !== '' ? (int)$row['parent_id'] : null,
+                'parent_id'  => null,
+//                'parent_id'  => $row['parent_id'] !== '' ? (int)$row['parent_id'] : null,
                 'status'     => 'Active',
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('organs', $batch);
         }
@@ -382,8 +390,9 @@ class H2MigrateFromCsv extends Command
                 'id'         => (int)$row['id'],
                 'name'       => $row['name'],
                 'status'     => 'Active',
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('bio_categories', $batch);
         }
@@ -414,8 +423,9 @@ class H2MigrateFromCsv extends Command
                 'name'       => $row['name'],
                 'parent_id'  => isset($row['parent_id']) && $row['parent_id'] !== '' ? (int)$row['parent_id'] : null,
                 'status'     => $this->mapBioSubStatus($row['status'] ?? null),
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('bio_sub', $batch);
         }
@@ -457,8 +467,9 @@ class H2MigrateFromCsv extends Command
                 'id'         => (int)$row['id'],
                 'cat_id'     => (int)$row['cat_id'],
                 'sub_id'     => (int)$row['sub_id'],
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('bio_bridge', $batch);
         }
@@ -492,8 +503,9 @@ class H2MigrateFromCsv extends Command
                 'id'         => (int)$row['id'],
                 'keyword'    => $row['keyword'],
                 'status'     => 'Active',
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('keywords', $batch);
         }
@@ -524,8 +536,9 @@ class H2MigrateFromCsv extends Command
                 'name'       => $row['name'],
                 'parent_id'  => null,
                 'status'     => 'Active',
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('study_types', $batch);
         }
@@ -556,8 +569,9 @@ class H2MigrateFromCsv extends Command
                 'name'       => $row['name'],
                 'parent_id'  => null,
                 'status'     => 'Active',
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('research_topics', $batch);
         }
@@ -591,8 +605,9 @@ class H2MigrateFromCsv extends Command
                 'id'          => (int)$row['id'],
                 'name'        => $row['name'],
                 'description' => null,
-                'created_at'  => $row['created_at'] ?: null,
-                'updated_at'  => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('roles', $batch);
         }
@@ -602,6 +617,36 @@ class H2MigrateFromCsv extends Command
         }
 
         $this->info('roles done.');
+    }
+
+    // Normalize any datetime/date/time field:
+    // - null, empty string, "NULL", "0000-00-00 00:00:00" => current time
+    // - otherwise, return as-is
+    // Replace your existing helper with this one
+    protected function normalizeDateTimeOrNow($value): string
+    {
+        if ($value === null) {
+            return now()->toDateTimeString();
+        }
+
+        $v = trim((string) $value);
+
+        // Common "no value" cases
+        if (
+            $v === '' ||
+            strtoupper($v) === 'NULL' ||
+            $v === '0000-00-00 00:00:00'
+        ) {
+            return now()->toDateTimeString();
+        }
+
+        // Accept only proper datetime format: 2025-05-21 04:31:21
+        if (!preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $v)) {
+            // If it's something weird like 'revision"...', treat it as invalid
+            return now()->toDateTimeString();
+        }
+
+        return $v;
     }
 
     protected function migrateUsers(string $csvPath): void
@@ -624,20 +669,27 @@ class H2MigrateFromCsv extends Command
             $oldRoleName = $row['role'] ?? null;
             $roleId = $oldRoleName && isset($roleMap[$oldRoleName]) ? $roleMap[$oldRoleName] : null;
 
+            // Keep email_verified_at null if empty/"NULL"
+            $rawVerified = isset($row['email_verified_at']) ? trim($row['email_verified_at']) : '';
+            $emailVerifiedAt = null;
+            if ($rawVerified !== '' && strtoupper($rawVerified) !== 'NULL') {
+                $emailVerifiedAt = $rawVerified; // assume it's valid datetime
+            }
+
             $batch[] = [
                 'id'                => (int)$row['id'],
                 'name'              => $row['name'],
                 'email'             => $row['email'],
-                'email_verified_at' => $row['email_verified_at'] ?: null,
+                'email_verified_at' => $emailVerifiedAt,
                 'password'          => $row['password'],
                 'role_id'           => $roleId,
                 'status'            => $this->mapUserStatus($row['status'] ?? null),
                 'remember_token'    => $row['remember_token'] ?: null,
-                'created_at'        => $row['created_at'] ?: null,
-                'updated_at'        => $row['updated_at'] ?: null,
-            ];
 
-            // NOTE: old extra columns (dob, company, etc.) are NOT in new users table.
+                // Use helper here:
+                'created_at'        => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'        => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
+            ];
 
             $this->insertBatch('users', $batch);
         }
@@ -681,8 +733,9 @@ class H2MigrateFromCsv extends Command
                 'author_h_index'          => null,
                 'parent_id'               => $row['parent_id'] !== '' ? (int)$row['parent_id'] : null,
                 'is_featured'             => isset($row['is_featured']) ? (int)$row['is_featured'] : 0,
-                'created_at'              => $row['created_at'] ?: null,
-                'updated_at'              => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('verified_authors', $batch);
         }
@@ -713,19 +766,23 @@ class H2MigrateFromCsv extends Command
 
         foreach ($this->readCsv($csvPath) as $row) {
             $batch[] = [
-                'id'               => (int)$row['id'],
+                'id'               => (int) $row['id'],
                 'email'            => $row['email'],
                 'purpose'          => $row['purpose'] ?: 'password_reset',
                 'otp_hash'         => $row['otp_hash'],
-                'attempts'         => (int)($row['attempts'] ?? 0),
-                'expires_at'       => $row['expires_at'] ?: null,
-                'resend_after'     => $row['resend_after'] ?: null,
-                'verified_at'      => $row['verified_at'] ?: null,
+                'attempts'         => (int) ($row['attempts'] ?? 0),
+
+                // Use the helper for all datetime-ish fields
+                'expires_at'       => $this->normalizeDateTimeOrNow($row['expires_at'] ?? null),
+                'resend_after'     => $this->normalizeDateTimeOrNow($row['resend_after'] ?? null),
+                'verified_at'      => $this->normalizeDateTimeOrNow($row['verified_at'] ?? null),
+                'token_expires_at' => $this->normalizeDateTimeOrNow($row['token_expires_at'] ?? null),
+                'created_at'       => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'       => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
+
                 'verify_token'     => $row['verify_token'] ?: null,
-                'token_expires_at' => $row['token_expires_at'] ?: null,
-                'created_at'       => $row['created_at'] ?: null,
-                'updated_at'       => $row['updated_at'] ?: null,
             ];
+
             $this->insertBatch('password_otps', $batch);
         }
 
@@ -753,7 +810,7 @@ class H2MigrateFromCsv extends Command
             $batch[] = [
                 'email'      => $row['email'],
                 'token'      => $row['token'],
-                'created_at' => $row['created_at'] ?: null,
+                'created_at' => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
             ];
             $this->insertBatch('password_reset_tokens', $batch);
         }
@@ -780,17 +837,23 @@ class H2MigrateFromCsv extends Command
 
         foreach ($this->readCsv($csvPath) as $row) {
             $batch[] = [
-                'id'             => (int)$row['id'],
+                'id'             => (int) $row['id'],
                 'tokenable_type' => $row['tokenable_type'],
-                'tokenable_id'   => (int)$row['tokenable_id'],
+                'tokenable_id'   => (int) $row['tokenable_id'],
                 'name'           => $row['name'],
                 'token'          => $row['token'],
-                'abilities'      => $row['abilities'] ?: null,
-                'last_used_at'   => $row['last_used_at'] ?: null,
-                'expires_at'     => $row['expires_at'] ?: null,
-                'created_at'     => $row['created_at'] ?: null,
-                'updated_at'     => $row['updated_at'] ?: null,
+
+                // CSV has ["*"] as text, DB column is text, so just keep it as string
+                'abilities'      => $row['abilities'] ?: '["*"]',
+
+                // Use the datetime normalizer so 'NULL', '', '0000...' all become a valid datetime
+                'last_used_at'   => $this->normalizeDateTimeOrNow($row['last_used_at'] ?? null),
+                'expires_at'     => $this->normalizeDateTimeOrNow($row['expires_at'] ?? null),
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
+
+            // your existing batch insert helper
             $this->insertBatch('personal_access_tokens', $batch);
         }
 
@@ -860,8 +923,9 @@ class H2MigrateFromCsv extends Command
                 'message'    => $row['message'],
                 'attachment' => $row['attachment'] ?: null,
                 'status'     => 'New',
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('contact_submissions', $batch);
         }
@@ -894,8 +958,8 @@ class H2MigrateFromCsv extends Command
                 'page_url'   => $row['page_url'] ?: null,
                 'feedback'   => $row['feedback'],
                 'status'     => $this->mapFeedbackStatus($row['status'] ?? null),
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                'created_at' => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at' => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('article_feedback', $batch);
         }
@@ -951,8 +1015,9 @@ class H2MigrateFromCsv extends Command
                 'final_article_id'    => (int)$row['final_article_id'],
                 'status'              => $mappedStatus,
                 'user_id'             => $row['user_id'] !== '' ? (int)$row['user_id'] : null,
-                'created_at'          => $row['created_at'] ?: null,
-                'updated_at'          => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('article_claims', $batch);
         }
@@ -967,6 +1032,59 @@ class H2MigrateFromCsv extends Command
     /* ==========================================================
      * FINAL ARTICLES -> articles (new)
      * ======================================================== */
+
+    protected function mapArticleStatus(?string $old): string
+    {
+        // Exact enum values from your new (and old) schema
+        $allowed = [
+            'Unverified',
+            'Verified',
+            'Draft',
+            'In Review',
+            'Flagged for Review',
+            'Review Complete',
+        ];
+
+        $default = 'Unverified';
+
+        // Normalize input
+        $v = trim((string) $old);
+
+        // Empty or NULL → default
+        if ($v === '') {
+            return $default;
+        }
+
+        // 1) Case-insensitive exact match to any allowed value
+        foreach ($allowed as $opt) {
+            if (strcasecmp($opt, $v) === 0) { // case-insensitive compare
+                return $opt;
+            }
+        }
+
+        // 2) Optional legacy / typo mappings (only if you need them)
+        $lower = strtolower($v);
+
+        // Example: if any row had "pending" or "draft" etc.
+        if (in_array('Draft', $allowed, true) && in_array($lower, ['pending', 'draft'], true)) {
+            return 'Draft';
+        }
+
+        if (in_array('In Review', $allowed, true) && in_array($lower, ['in review', 'review', 'reviewing'], true)) {
+            return 'In Review';
+        }
+
+        if (in_array('Flagged for Review', $allowed, true) && in_array($lower, ['flagged', 'flagged for review'], true)) {
+            return 'Flagged for Review';
+        }
+
+        if (in_array('Review Complete', $allowed, true) && in_array($lower, ['review complete', 'completed'], true)) {
+            return 'Review Complete';
+        }
+
+        // 3) If nothing matched, return a safe default that is valid for the enum
+        return $default;
+    }
 
     protected function migrateFinalArticles(string $csvPath): void
     {
@@ -990,15 +1108,19 @@ class H2MigrateFromCsv extends Command
                 'reviewer_id'    => $row['reviewer_id'] !== '' ? (int)$row['reviewer_id'] : null,
                 'verified_by'    => $row['verified_by'] !== '' ? (int)$row['verified_by'] : null,
                 'added_by'       => (int)($row['addedBy'] ?? 1),
-                'status'         => $row['status'],
+
+                // OLD:
+                // 'status'         => $row['status'],
+
+                // NEW: enum-safe
+                'status'         => $this->mapArticleStatus($row['status'] ?? null),
+
                 'is_trending'    => $row['is_trending'] !== '' ? (int)$row['is_trending'] : 0,
                 'is_highlighted' => 0,
                 'rank_score'     => null,
-                'created_at'     => $row['created_at'] ?: null,
-                'updated_at'     => $row['updated_at'] ?: null,
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
-
-            // Old JSON fields (publicData, articleGeneralData, etc.) are not mapped here.
 
             $this->insertBatch('articles', $batch);
         }
@@ -1029,8 +1151,9 @@ class H2MigrateFromCsv extends Command
                 'article_id' => (int)$row['article_id'],
                 'changed_by' => (int)$row['changed_by'],
                 'changes'    => $row['changes'],
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['created_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('article_revisions', $batch);
         }
@@ -1122,8 +1245,9 @@ class H2MigrateFromCsv extends Command
                 'sci_mago'         => $row['sciMAGO'] ?? null,
                 'outcome'          => $outcome,
                 'admin_approval'   => $adminApproval,
-                'created_at'       => $row['created_at'] ?: null,
-                'updated_at'       => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
 
             $this->insertBatch('portal_articles', $batch);
@@ -1169,8 +1293,9 @@ class H2MigrateFromCsv extends Command
                 'lbl'        => $row['lbl'],
                 'type'       => $row['type'],
                 'meta'       => $row['meta'] ?? null,
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('graph_data', $batch);
         }
@@ -1201,8 +1326,9 @@ class H2MigrateFromCsv extends Command
                 'title'       => $row['title'],
                 'description' => $row['description'] ?? null,
                 'video_url'   => $row['video_url'] ?? null,
-                'created_at'  => $row['created_at'] ?: null,
-                'updated_at'  => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
             $this->insertBatch('tutorials', $batch);
         }
@@ -1227,7 +1353,7 @@ class H2MigrateFromCsv extends Command
 
         $this->info("Migrating p_species...");
 
-        DB::table('p_species')->truncate();
+        DB::table('article_species')->truncate();
 
         $batch = [];
 
@@ -1235,19 +1361,21 @@ class H2MigrateFromCsv extends Command
             $batch[] = [
                 'id'         => (int)$row['id'],
                 'article_id' => (int)$row['article_id'],
-                'species_id' => (int)$row['species_id'],
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                'species_id' => (int)$row['specie_id'],
+                'verified' => true,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
 
-            $this->insertBatch('p_species', $batch);
+            $this->insertBatch('article_species', $batch);
         }
 
         if ($batch) {
-            DB::table('p_species')->insert($batch);
+            DB::table('article_species')->insert($batch);
         }
 
-        $this->info('p_species done.');
+        $this->info('article_species done.');
     }
 
     protected function migratePOrgans(string $csvPath): void
@@ -1259,7 +1387,7 @@ class H2MigrateFromCsv extends Command
 
         $this->info("Migrating p_organs...");
 
-        DB::table('p_organs')->truncate();
+        DB::table('article_organs')->truncate();
 
         $batch = [];
 
@@ -1268,18 +1396,20 @@ class H2MigrateFromCsv extends Command
                 'id'         => (int)$row['id'],
                 'article_id' => (int)$row['article_id'],
                 'organ_id'   => (int)$row['organ_id'],
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                'verified' => true,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
 
-            $this->insertBatch('p_organs', $batch);
+            $this->insertBatch('article_organs', $batch);
         }
 
         if ($batch) {
-            DB::table('p_organs')->insert($batch);
+            DB::table('article_organs')->insert($batch);
         }
 
-        $this->info('p_organs done.');
+        $this->info('article_organs done.');
     }
 
     protected function migratePStudyType(string $csvPath): void
@@ -1291,7 +1421,7 @@ class H2MigrateFromCsv extends Command
 
         $this->info("Migrating p_study_type...");
 
-        DB::table('p_study_type')->truncate();
+        DB::table('article_study_types')->truncate();
 
         $batch = [];
 
@@ -1300,18 +1430,20 @@ class H2MigrateFromCsv extends Command
                 'id'            => (int)$row['id'],
                 'article_id'    => (int)$row['article_id'],
                 'study_type_id' => (int)$row['study_type_id'],
-                'created_at'    => $row['created_at'] ?: null,
-                'updated_at'    => $row['updated_at'] ?: null,
+                'verified' => true,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
 
-            $this->insertBatch('p_study_type', $batch);
+            $this->insertBatch('article_study_types', $batch);
         }
 
         if ($batch) {
-            DB::table('p_study_type')->insert($batch);
+            DB::table('article_study_types')->insert($batch);
         }
 
-        $this->info('p_study_type done.');
+        $this->info('article_study_types done.');
     }
 
     protected function migratePResearchTopics(string $csvPath): void
@@ -1323,7 +1455,7 @@ class H2MigrateFromCsv extends Command
 
         $this->info("Migrating p_research_topics...");
 
-        DB::table('p_research_topics')->truncate();
+        DB::table('article_research_topics')->truncate();
 
         $batch = [];
 
@@ -1331,19 +1463,21 @@ class H2MigrateFromCsv extends Command
             $batch[] = [
                 'id'                => (int)$row['id'],
                 'article_id'        => (int)$row['article_id'],
-                'research_topic_id' => (int)$row['research_topic_id'],
-                'created_at'        => $row['created_at'] ?: null,
-                'updated_at'        => $row['updated_at'] ?: null,
+                'research_topic_id' => (int)$row['rt_id'],
+                'verified' => true,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
 
-            $this->insertBatch('p_research_topics', $batch);
+            $this->insertBatch('article_research_topics', $batch);
         }
 
         if ($batch) {
-            DB::table('p_research_topics')->insert($batch);
+            DB::table('article_research_topics')->insert($batch);
         }
 
-        $this->info('p_research_topics done.');
+        $this->info('article_research_topics done.');
     }
 
     protected function migratePAdministration(string $csvPath): void
@@ -1355,7 +1489,7 @@ class H2MigrateFromCsv extends Command
 
         $this->info("Migrating p_administration...");
 
-        DB::table('p_administration')->truncate();
+        DB::table('article_administration_methods')->truncate();
 
         $batch = [];
 
@@ -1363,19 +1497,21 @@ class H2MigrateFromCsv extends Command
             $batch[] = [
                 'id'                       => (int)$row['id'],
                 'article_id'               => (int)$row['article_id'],
-                'administration_method_id' => (int)$row['administration_method_id'],
-                'created_at'               => $row['created_at'] ?: null,
-                'updated_at'               => $row['updated_at'] ?: null,
+                'administration_method_id' => (int)$row['administration_id'],
+                'verified' => true,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
 
-            $this->insertBatch('p_administration', $batch);
+            $this->insertBatch('article_administration_methods', $batch);
         }
 
         if ($batch) {
-            DB::table('p_administration')->insert($batch);
+            DB::table('article_administration_methods')->insert($batch);
         }
 
-        $this->info('p_administration done.');
+        $this->info('article_administration_methods done.');
     }
 
     protected function migratePBiomaker(string $csvPath): void
@@ -1397,8 +1533,9 @@ class H2MigrateFromCsv extends Command
                 'article_id' => (int)$row['article_id'],
                 'cat_id'     => isset($row['cat_id']) && $row['cat_id'] !== '' ? (int)$row['cat_id'] : null,
                 'sub_id'     => isset($row['sub_id']) && $row['sub_id'] !== '' ? (int)$row['sub_id'] : null,
-                'created_at' => $row['created_at'] ?: null,
-                'updated_at' => $row['updated_at'] ?: null,
+                // ✅ now protected against garbage like " 255"
+                'created_at'     => $this->normalizeDateTimeOrNow($row['created_at'] ?? null),
+                'updated_at'     => $this->normalizeDateTimeOrNow($row['updated_at'] ?? null),
             ];
 
             $this->insertBatch('p_biomaker', $batch);
