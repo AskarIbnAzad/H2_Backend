@@ -2860,7 +2860,7 @@ class ArticleController extends Controller
 
    public function articleSubmit(Request $req)
     {
-//        Log::info("show article data2 :\n" . print_r($req->all(), true));
+        Log::info("show article data2 :\n" . print_r($req->all(), true));
         DB::beginTransaction();
 
         try {
@@ -2938,6 +2938,7 @@ class ArticleController extends Controller
                     $article->diseases()->detach();
                     $article->researchTopics()->detach();
                     $article->studyCategories()->detach();
+                    $article->countries()->delete();
 
 
                     // Delete one-to-one relationships

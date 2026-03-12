@@ -918,11 +918,11 @@ class ArticleTransformationService
 
     private function attachDiseases($article, $articleGeneralData)
     {
-        if (empty($articleGeneralData['disease'])) {
+        if (empty($articleGeneralData['diseaseModel'])) {
             return;
         }
 
-        $diseases = is_array($articleGeneralData['disease']) ? $articleGeneralData['disease'] : [$articleGeneralData['disease']];
+        $diseases = is_array($articleGeneralData['diseaseModel']) ? $articleGeneralData['diseaseModel'] : [$articleGeneralData['diseaseModel']];
 
         foreach ($diseases as $diseaseData) {
             $diseaseName = is_array($diseaseData) ? ($diseaseData['name'] ?? '') : $diseaseData;
