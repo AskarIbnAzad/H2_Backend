@@ -25,6 +25,7 @@ use App\Models\StudyType;
 use App\Models\System;
 use App\Models\VerifiedAuthor;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ArticleTransformationService
 {

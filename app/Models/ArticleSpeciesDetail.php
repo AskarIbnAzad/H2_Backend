@@ -14,7 +14,7 @@ class ArticleSpeciesDetail extends Model
         'average_age', 'age_unit', 'age_range_min', 'age_range_max',
         'average_weight', 'weight_unit', 'weight_range_min', 'weight_range_max',
         'description', 'subjects_verified', 'health_verified', 'gender_verified',
-        'age_verified', 'weight_verified'
+        'age_verified', 'weight_verified', 'age_data_source', 'weight_data_source',
     ];
 
     protected $casts = [
