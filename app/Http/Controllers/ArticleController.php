@@ -2761,7 +2761,7 @@ class ArticleController extends Controller
 
         // Add categories if provided
         if ($req->has('categoryName') && is_array($req->categoryName)) {
-            $categoryIds = BioCategory::whereIn('name', $req->categoryName)->pluck('id');
+            $categoryIds = BioCategory::whereIn('name', $req->categoryName)->pluck('id')->toArray();
 
             foreach ($categoryIds as $catId) {
                 BioBridge::create([
