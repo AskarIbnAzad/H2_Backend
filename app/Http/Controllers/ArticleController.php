@@ -2656,19 +2656,28 @@ class ArticleController extends Controller
 
     public function managedMakers(Request $req)
     {
-        $query = BioSub::with('categories');
-
-        if ($req->has('status')) {
-            $query->where('status', $req->status);
-        }
-
-        $biomarkers = $query->orderBy('name')->get();
+        $category = BioCategory::all();
 
         return response()->json([
-            'status' => true,
-            'sub' => $biomarkers,
+            'category' => $category,
         ]);
     }
+
+//public function managedMakers(Request $req)
+//    {
+//        $query = BioSub::with('categories');
+//
+//        if ($req->has('status')) {
+//            $query->where('status', $req->status);
+//        }
+//
+//        $biomarkers = $query->orderBy('name')->get();
+//
+//        return response()->json([
+//            'status' => true,
+//            'sub' => $biomarkers,
+//        ]);
+//    }
 
     public function RejectApproveMakers(Request $req)
     {
