@@ -2654,12 +2654,23 @@ class ArticleController extends Controller
         ]);
     }
 
-    public function managedMakers(Request $req)
+//    public function managedMakers(Request $req)
+//    {
+//        $category = BioCategory::all();
+//
+//        return response()->json([
+//            'category' => $category,
+//        ]);
+//    }
+    public function managedMakers()
     {
-        $category = BioCategory::all();
+        $biomarkers = BioSub::with('categories')->get();
+
+        $categories = BioCategory::all();
 
         return response()->json([
-            'category' => $category,
+            'biomarkers' => $biomarkers,
+            'category' => $categories,
         ]);
     }
 
