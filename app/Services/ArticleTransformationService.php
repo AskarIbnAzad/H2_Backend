@@ -25,7 +25,6 @@ use App\Models\StudyType;
 use App\Models\System;
 use App\Models\VerifiedAuthor;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class ArticleTransformationService
 {
@@ -840,7 +839,9 @@ class ArticleTransformationService
             $numberOfSubjects = $this->arrayToInt($speciesDetail['subjects']['name'] ?? null);
             $healthStatus = $this->arrayToString($speciesDetail['health']['name'] ?? null) ?: null;
             $gender = $this->arrayToString($speciesDetail['gender']['name'] ?? null) ?: null;
+
             $averageAge = $this->arrayToDecimal($speciesDetail['averageAge']['name'] ?? null);
+            $averageAgeUnit = $speciesDetail['averageAge']['unit'] ?? null;
             $averageWeight = $this->arrayToDecimal($speciesDetail['averageWeight']['name'] ?? null);
             $weightUnit = $this->arrayToString($speciesDetail['averageWeight']['unit'] ?? null) ?: 'kg';
 
@@ -858,7 +859,7 @@ class ArticleTransformationService
                     'species_id' => $species->id,
                     'description' => $description,
                     'average_age' => $averageAge,
-                    'age_unit' => $averageAge ? 'years' : null,
+                    'age_unit' => $averageAgeUnit ?? null,
                     'age_data_source' => $ageDataSource,
                     'gender' => $gender,
                     'gender_data_source' => $genderDataSource,
@@ -1351,8 +1352,6 @@ class ArticleTransformationService
 
                 $species = Species::where('name', $speciesName)->first();
                 if (! $species) {
-                    \Log::warning("Species not found in database: {$speciesName}");
-
                     continue;
                 }
 
@@ -1361,7 +1360,6 @@ class ArticleTransformationService
 
                 if ($methodsData && ! empty($methodsData)) {
                     // ========== NEW STRUCTURE: methodsData exists ==========
-                    \Log::info("Processing NEW format for species: {$speciesName}");
 
                     // ✅ Process ALL INHALATION-BASED methods
                     $allInhalationMethods = [
@@ -1391,7 +1389,6 @@ class ArticleTransformationService
                                     'peak_breath_hydrogen_value' => null,
                                     'verified' => ($protocol['percentPurity']['status'] ?? 'Unverified') === 'Verified',
                                 ]);
-                                \Log::info("Created inhalation protocol for {$speciesName} - {$methodName}");
                             }
                         }
                     }
@@ -1427,7 +1424,6 @@ class ArticleTransformationService
                                     'peak_breath_hydrogen_value' => null, // Not applicable for direct methods
                                     'verified' => ($protocol['volume']['status'] ?? 'Unverified') === 'Verified',
                                 ]);
-                                \Log::info("Created direct ingestion protocol for {$speciesName} - {$methodName}");
                             }
                         }
                     }
@@ -1467,7 +1463,7 @@ class ArticleTransformationService
                                     'peak_breath_hydrogen_unit' => 'ppm',
                                     'verified' => ($protocol['duration']['status'] ?? 'Unverified') === 'Verified',
                                 ]);
-                                \Log::info("Created indirect ingestion protocol for {$speciesName} - {$methodName}");
+
                             }
                         }
                     }
@@ -1487,7 +1483,7 @@ class ArticleTransformationService
                             'frequency' => null,
                             'verified' => ($cellData['concentrationOfHydrogenForMedium']['status'] ?? 'Unverified') === 'Verified',
                         ]);
-                        \Log::info("Created cell culture protocol for {$speciesName}");
+
                     }
 
                     // ✅ Process CELL FREE SYSTEM
@@ -1505,7 +1501,7 @@ class ArticleTransformationService
                             'frequency' => null,
                             'verified' => ($cellFreeData['concentrationOfHydrogenForMedium']['status'] ?? 'Unverified') === 'Verified',
                         ]);
-                        \Log::info("Created cell free system protocol for {$speciesName}");
+
                     }
 
                     // ✅ Process TOPICAL APPLICATIONS
@@ -1526,12 +1522,12 @@ class ArticleTransformationService
                             'frequency' => null,
                             'verified' => ($topicalData['topicalMethod']['status'] ?? 'Unverified') === 'Verified',
                         ]);
-                        \Log::info("Created topical protocol for {$speciesName}");
+
                     }
 
                 } else {
                     // ========== OLD STRUCTURE: Use existing logic ==========
-                    \Log::info("Processing OLD format for species: {$speciesName}");
+
 
                     // Check if this species has cell culture data
                     $hasSpeciesCellCulture = ! empty($speciesData['concentrationOfHydrogenForMedium']) ||
@@ -2049,6 +2045,7 @@ class ArticleTransformationService
                     'name' => $sd->average_age ? (string) $sd->average_age : null,
                     'status' => $sd->age_verified ? 'Verified' : 'Unverified',
                     'statusConcentration' => $sd->age_data_source ?? 'estimated',
+                    'unit' => $sd->age_unit ?? 'years',
                 ],
                 'averageWeight' => [
                     'name' => $sd->average_weight ? (string) $sd->average_weight : null,
