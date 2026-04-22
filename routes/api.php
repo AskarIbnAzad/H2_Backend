@@ -6,6 +6,7 @@ use App\Http\Controllers\ArticleDataController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\SavedSearchController;
 use App\Http\Controllers\TutorialController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -144,6 +145,9 @@ Route::middleware(['cors'])->group(function () {
 
         Route::post('/upload-article-pdf', [AdminController::class, 'uploadArticle']);
         Route::get('/check-auth', [AuthController::class, 'checkAuth'])->name('check.auth');
+        Route::get('/saved-search', [SavedSearchController::class, 'getSavedSearches']);
+        Route::post('/save-search', [SavedSearchController::class, 'saveSearch'])->name('save.search');
+        Route::delete('/saved-search/{id}', [SavedSearchController::class, 'destroy']);
         Route::post('/final-article-list-admin', [ArticleController::class, 'listArticles']);
         Route::post('/researcher-articles', [ArticleController::class, 'ResearcherArticle']);
         Route::post('/add-specie', [ArticleController::class, 'AddSpecie']);
