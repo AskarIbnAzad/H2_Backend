@@ -2093,6 +2093,8 @@ class ArticleController extends Controller
         $disease = Disease::create([
             'name' => $req->name,
             'parent_id' => $req->parent_id ?? null,
+            'short_description' => $req->short_description ?? null,
+            'description' => $req->description ?? null,
             'status' => 'Active',
         ]);
 
@@ -2110,6 +2112,12 @@ class ArticleController extends Controller
         $disease->name = $req->name;
         if ($req->has('parent_id')) {
             $disease->parent_id = $req->parent_id;
+        }
+        if ($req->has('short_description')) {
+            $disease->short_description = $req->short_description;
+        }
+        if ($req->has('description')) {
+            $disease->description = $req->description;
         }
         $disease->save();
 

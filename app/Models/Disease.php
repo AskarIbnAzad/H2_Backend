@@ -11,7 +11,7 @@ class Disease extends Model
 {
     protected $table = 'diseases';
 
-    protected $fillable = ['name', 'parent_id', 'status'];
+    protected $fillable = ['name', 'parent_id', 'status', 'short_description', 'description'];
 
     // Hierarchical
     public function parent()
