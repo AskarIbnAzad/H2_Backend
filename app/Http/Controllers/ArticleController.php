@@ -2191,6 +2191,37 @@ class ArticleController extends Controller
         ]);
     }
 
+
+    public function singleDiseases($id)
+    {
+        $disease = Disease::withCount(['articles'])
+            ->with(['parent', 'children'])
+            ->where('status', 'Active')
+            ->find($id);
+
+        if (!$disease) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Disease not found'
+            ], 404);
+        }
+
+        $articlesMap = [];
+        $disease->load(['articles' => function ($q) {
+            $q->select('articles.id', 'articles.mhid');
+        }]);
+        $articlesMap[$disease->id] = $disease->articles->pluck('id')->toArray();
+
+        $tree = $this->buildDiseaseTree(collect([$disease]));
+
+        return response()->json([
+            'status' => true,
+            'disease' => $disease,
+            'tree' => $tree,
+            'articlesMap' => $articlesMap,
+        ]);
+    }
+
     /**
      * STUDY TYPE MANAGEMENT
      */

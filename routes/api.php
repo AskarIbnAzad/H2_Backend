@@ -45,6 +45,9 @@ Route::middleware(['cors'])->group(function () {
     //Public Data Explorer
     Route::post('/get-public-data-explorer/{filter}', [AdminController::class, 'publicDataExplorer']);
 
+
+    Route::get('/get-disease/{id}', [ArticleController::class, 'singleDiseases']);
+
     //Keywords
     Route::post('/add-update-keyword/{keyword?}', [ContactController::class, 'addUpdateKeyword']);
     Route::get('/get-keywords', [ContactController::class, 'getKeywords']);

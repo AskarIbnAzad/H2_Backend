@@ -1793,6 +1793,8 @@ class AdminController extends Controller
                 return [
                     'id' => $item->id,
                     'name' => $item->name,
+                    'short_description' => $item->short_description,
+                    'description' => $item->description,
                     'count' => $item->articles_count,
                     'percentage' => $total > 0 ? round(($item->articles_count / $total) * 100, 2) : 0,
                     'parent' => $item->parent ? $item->parent->name : null,
