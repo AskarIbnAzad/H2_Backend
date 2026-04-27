@@ -108,6 +108,9 @@ return new class extends Migration
             $table->id();
             $table->string('name', 255);
             $table->foreignId('parent_id')->nullable()->constrained('organs')->cascadeOnDelete();
+            $table->string('image', 500)->nullable();
+            $table->text('short_description')->nullable();
+            $table->longText('description')->nullable();
             $table->enum('status', ['Active', 'Inactive'])->default('Active');
             $table->timestamps();
 

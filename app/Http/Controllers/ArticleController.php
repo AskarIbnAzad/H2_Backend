@@ -28,6 +28,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Validator;
 
 class ArticleController extends Controller
@@ -2383,9 +2384,28 @@ class ArticleController extends Controller
      */
     public function addOrgans(Request $req)
     {
+        $validated = $req->validate([
+            'name' => 'required|string|max:255',
+            'parent_id' => 'nullable|exists:organs,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048', // max 2MB
+            'short_description' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
+
+        $imagePath = null;
+        if ($req->hasFile('image')) {
+            // Store in public/organs directory
+            $imagePath = $req->file('image')->store('organs', 'public');
+            // Get full URL (adjust if using different disk setup)
+            $imageUrl = Storage::url($imagePath);
+        }
+
         $organ = Organ::create([
             'name' => $req->name,
             'parent_id' => $req->parent_id ?? null,
+            'image' => $imageUrl ?? null,
+            'short_description' => $req->short_description ?? null,
+            'description' => $req->description ?? null,
             'status' => 'Active',
         ]);
 
@@ -2400,9 +2420,40 @@ class ArticleController extends Controller
     {
         $organ = Organ::findOrFail($id);
 
-        $organ->name = $req->name;
+        $validated = $req->validate([
+            'name' => 'sometimes|required|string|max:255',
+            'parent_id' => 'nullable|exists:organs,id',
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
+            'short_description' => 'nullable|string',
+            'description' => 'nullable|string',
+        ]);
+
+        // Store new image if uploaded
+        if ($req->hasFile('image')) {
+            // Delete old image if exists
+            if ($organ->image) {
+                // Extract relative path from URL (if stored as full URL)
+                // Assuming you stored full URL like '/storage/organs/filename.jpg'
+                $oldPath = str_replace('/storage/', '', $organ->image);
+                if (Storage::disk('public')->exists($oldPath)) {
+                    Storage::disk('public')->delete($oldPath);
+                }
+            }
+            // Store new image
+            $imagePath = $req->file('image')->store('organs', 'public');
+            $organ->image = Storage::url($imagePath);
+        }
+
+        // Update other fields
+        $organ->name = $req->name ?? $organ->name;
         if ($req->has('parent_id')) {
             $organ->parent_id = $req->parent_id;
+        }
+        if ($req->has('short_description')) {
+            $organ->short_description = $req->short_description;
+        }
+        if ($req->has('description')) {
+            $organ->description = $req->description;
         }
         $organ->save();
 

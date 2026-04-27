@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Organ extends Model
 {
-    protected $fillable = ['name', 'parent_id', 'status'];
+    protected $fillable = ['name', 'parent_id', 'status', 'image', 'short_description', 'description',];
 
     // Hierarchical
     public function parent()
