@@ -47,6 +47,7 @@ Route::middleware(['cors'])->group(function () {
 
 
     Route::get('/get-disease/{id}', [ArticleController::class, 'singleDiseases']);
+    Route::get('/organs/{organ}', [AdminController::class, 'showSingleOrgan']);
 
     //Keywords
     Route::post('/add-update-keyword/{keyword?}', [ContactController::class, 'addUpdateKeyword']);

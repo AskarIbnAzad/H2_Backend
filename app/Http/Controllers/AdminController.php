@@ -1576,6 +1576,9 @@ class AdminController extends Controller
 
             return [
                 'id' => $organ->id,
+                'image' => $organ->image,
+                'short_description' => $organ->short_description,
+                'description' => $organ->description,
                 'name' => $organ->name,
                 'status' => null,
                 'total_occurrences' => $organ->articles_count,
@@ -1583,14 +1586,67 @@ class AdminController extends Controller
                 'human_study_occurrences' => $humanStudyOccurrences,
                 'primary_system' => $primarySystem,
                 'system_relationships' => $systemRelationships,
-                'created_at' => $organ->created_at->toIso8601String(),
-                'updated_at' => $organ->updated_at->toIso8601String(),
+                'created_at' => $organ->created_at ? $organ->created_at->toIso8601String() : null,
+                'updated_at' => $organ->updated_at ? $organ->updated_at->toIso8601String() : null,
             ];
         });
 
         return [
             'items' => $transformed->toArray(),
         ];
+    }
+
+
+    public function showSingleOrgan(Organ $organ)
+    {
+        // Load the organ's verified articles
+        $organ->loadCount(['articles' => function ($q) {
+            $q->where('status', 'Verified');
+        }]);
+
+        // Load articles for the human studies and system relationship calculation
+        $articles = $organ->articles()->where('status', 'Verified')->get();
+
+        // Count human studies
+        $humanStudyOccurrences = 0;
+        foreach ($articles as $article) {
+            $hasHuman = $article->species()->whereIn('species.name', ['Human', 'Humans', 'human', 'humans'])->exists();
+            if ($hasHuman) {
+                $humanStudyOccurrences++;
+            }
+        }
+
+        // System relationships
+        $systemRelationships = [];
+        foreach ($articles as $article) {
+            foreach ($article->systems as $system) {
+                $systemName = $system->name;
+                if (!isset($systemRelationships[$systemName])) {
+                    $systemRelationships[$systemName] = 0;
+                }
+                $systemRelationships[$systemName]++;
+            }
+        }
+        arsort($systemRelationships);
+
+        $primarySystem = !empty($systemRelationships) ? array_key_first($systemRelationships) : null;
+
+        // Build the response data (same structure as the list items)
+        return response()->json([
+            'id' => $organ->id,
+            'image' => $organ->image,
+            'short_description' => $organ->short_description,
+            'description' => $organ->description,
+            'name' => $organ->name,
+            'status' => null,
+            'total_occurrences' => $organ->articles_count,
+            'article_count' => $organ->articles_count,
+            'human_study_occurrences' => $humanStudyOccurrences,
+            'primary_system' => $primarySystem,
+            'system_relationships' => $systemRelationships,
+            'created_at' => $organ->created_at ? $organ->created_at->toIso8601String() : null,
+            'updated_at' => $organ->updated_at ? $organ->updated_at->toIso8601String() : null,
+        ]);
     }
 
     private function exploreSystems($req)
