@@ -13,7 +13,7 @@ class Article extends Model
 
     protected $fillable = [
         'mhid', 'doi', 'pmid', 'reviewer_id', 'verified_by', 'added_by',
-        'status', 'is_trending', 'is_highlighted', 'rank_score',
+        'status', 'is_trending', 'is_highlighted', 'rank_score', 'folder_id'
     ];
 
     protected $casts = [
@@ -23,6 +23,10 @@ class Article extends Model
     ];
 
     // ==================== Relationships ====================
+
+    public function folder() {
+        return $this->belongsTo(Folder::class);
+    }
 
     // Users
     public function reviewer()

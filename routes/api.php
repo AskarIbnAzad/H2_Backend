@@ -6,6 +6,7 @@ use App\Http\Controllers\ArticleDataController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\FolderController;
 use App\Http\Controllers\SavedSearchController;
 use App\Http\Controllers\TutorialController;
 use Illuminate\Http\Request;
@@ -127,6 +128,14 @@ Route::middleware(['cors'])->group(function () {
     // });
     Route::post('/upload-images', [AdminController::class, 'uploadImages']);
     Route::middleware('auth:sanctum')->group(function () {
+
+        Route::get('/folders', [FolderController::class, 'index']);
+        Route::post('/folders', [FolderController::class, 'store']);
+        Route::delete('/folders/{folder}', [FolderController::class, 'destroy']);
+
+        Route::get('/folders/{folder}/articles', [FolderController::class, 'articles']);
+        Route::post('/folders/{folder}/articles', [FolderController::class, 'addArticle']);
+        Route::delete('/folders/{folder}/articles/{article}', [FolderController::class, 'removeArticle']);
 
         Route::prefix('articles/data')->group(function () {
             Route::post('/add', [ArticleDataController::class, 'addData']);

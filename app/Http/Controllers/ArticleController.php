@@ -417,6 +417,23 @@ class ArticleController extends Controller
             $query->where('reviewer_id', auth()->id());
         }
 
+        // === Folder filter – restrict to articles in a specific folder ===
+        if ($folderId = $req->input('folder_id')) {
+            Log::info('folder id', [$folderId]);
+            Log::info('user id', [auth()->id()]);
+            // Ensure the folder belongs to the authenticated user
+            $folder = \App\Models\Folder::where('id', $folderId)
+//                ->where('user_id', auth()->id())
+                ->first();
+
+            Log::info('folder', [$folder]);
+            if (!$folder) {
+                return response()->json(['status' => false, 'message' => 'Folder not found'], 404);
+            }
+            $query->where('folder_id', $folderId);
+        }
+        // ================================================================
+
         // Apply status filter (default to Verified)
         $status = $req->input('status', 'Verified');
         $query->where('status', $status);
