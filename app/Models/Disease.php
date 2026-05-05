@@ -36,4 +36,12 @@ class Disease extends Model
                     ->withPivot('disease_model_description', 'verified')
                     ->withTimestamps();
     }
+
+    /**
+     * Organs linked to this disease.
+     */
+    public function organs()
+    {
+        return $this->belongsToMany(Organ::class, 'disease_organ');
+    }
 }
