@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FolderController;
+use App\Http\Controllers\OrganDiseaseRelationController;
 use App\Http\Controllers\SavedSearchController;
 use App\Http\Controllers\TutorialController;
 use Illuminate\Http\Request;
@@ -173,6 +174,9 @@ Route::middleware(['cors'])->group(function () {
         Route::post('/edit-disease/{id}', [ArticleController::class, 'EditDisease']);
         Route::get('/view-disease/{disease}', [ArticleController::class, 'ViewDisease']);
         Route::post('/delete-disease/{id}', [ArticleController::class, 'DeleteDisease']);
+
+        Route::post('/get-organ-disease-relations', [OrganDiseaseRelationController::class, 'getRelations']);
+        Route::post('/update-organ-disease-relations', [OrganDiseaseRelationController::class, 'updateRelations']);
 
         Route::get('/get-disease', [ArticleController::class, 'allDiseases']);
 
