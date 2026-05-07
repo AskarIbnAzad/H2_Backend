@@ -10,6 +10,7 @@ use App\Http\Controllers\FolderController;
 use App\Http\Controllers\OrganDiseaseRelationController;
 use App\Http\Controllers\SavedSearchController;
 use App\Http\Controllers\TutorialController;
+use App\Http\Controllers\UserProfileController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -129,6 +130,9 @@ Route::middleware(['cors'])->group(function () {
     // });
     Route::post('/upload-images', [AdminController::class, 'uploadImages']);
     Route::middleware('auth:sanctum')->group(function () {
+        Route::get('/get-profile', [UserProfileController::class, 'getProfile']);
+        Route::post('/update-profile', [UserProfileController::class, 'updateProfile']);
+        Route::post('/change-password', [AuthController::class, 'changePassword']);
 
         Route::get('/folders', [FolderController::class, 'index']);
         Route::post('/folders', [FolderController::class, 'store']);

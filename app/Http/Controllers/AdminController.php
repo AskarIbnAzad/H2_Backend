@@ -1599,6 +1599,10 @@ class AdminController extends Controller
 
     public function showSingleOrgan(Organ $organ)
     {
+        $organ->load(['diseases' => function ($query) {
+            $query->withCount('articles');
+        }]);
+
         // Load the organ's verified articles
         $organ->loadCount(['articles' => function ($q) {
             $q->where('status', 'Verified');
@@ -1646,6 +1650,7 @@ class AdminController extends Controller
             'system_relationships' => $systemRelationships,
             'created_at' => $organ->created_at ? $organ->created_at->toIso8601String() : null,
             'updated_at' => $organ->updated_at ? $organ->updated_at->toIso8601String() : null,
+            'diseases'                => $organ->diseases,
         ]);
     }
 

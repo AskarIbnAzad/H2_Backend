@@ -62,4 +62,9 @@ class User extends Authenticatable
     {
         return $this->hasMany(ArticleRevision::class, 'changed_by');
     }
+
+    public function profile()
+    {
+        return $this->hasOne(UserProfile::class);
+    }
 }

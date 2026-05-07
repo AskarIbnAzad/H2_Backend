@@ -2224,6 +2224,10 @@ class ArticleController extends Controller
             ], 404);
         }
 
+        $disease->load(['organs' => function ($query) {
+            $query->withCount('articles');
+        }]);
+
         $articlesMap = [];
         $disease->load(['articles' => function ($q) {
             $q->select('articles.id', 'articles.mhid');
