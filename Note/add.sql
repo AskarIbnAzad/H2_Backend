@@ -75,3 +75,9 @@
 --            REFERENCES users(id)
 --            ON DELETE CASCADE
 -- );
+
+ALTER TABLE article_species_details
+    MODIFY gender ENUM('Male', 'Female', 'Both', 'N/A');
+
+ALTER TABLE article_species_details
+    MODIFY health_status ENUM('Healthy', 'Diseased', 'Mixed', 'N/A');
