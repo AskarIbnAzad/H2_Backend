@@ -172,7 +172,7 @@ return new class extends Migration
         Schema::create('verified_authors', function (Blueprint $table) {
             $table->id();
             $table->string('name', 500);
-            $table->string('orcid', 50)->nullable();
+            $table->string('orcid', 500)->nullable();
             $table->string('email', 255)->nullable();
             $table->string('institution_affiliation', 500)->nullable();
             $table->unsignedInteger('author_h_index')->nullable();

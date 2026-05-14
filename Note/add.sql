@@ -1,3 +1,14 @@
+-- CREATE TABLE saved_searches (
+--     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     user_id BIGINT UNSIGNED,
+--     name TEXT NOT NULL,
+--     search_data LONGTEXT NOT NULL,
+--     created_at TIMESTAMP NULL DEFAULT NULL,
+--     updated_at TIMESTAMP NULL DEFAULT NULL,
+--     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+-- );
+
+
 -- ALTER TABLE diseases
 --     ADD COLUMN short_description TEXT NULL AFTER parent_id,
 --     ADD COLUMN description LONGTEXT NULL AFTER short_description;
@@ -76,8 +87,11 @@
 --            ON DELETE CASCADE
 -- );
 
-ALTER TABLE article_species_details
-    MODIFY gender ENUM('Male', 'Female', 'Both', 'N/A');
+-- ALTER TABLE article_species_details
+--     MODIFY gender ENUM('Male', 'Female', 'Both', 'N/A');
 
-ALTER TABLE article_species_details
-    MODIFY health_status ENUM('Healthy', 'Diseased', 'Mixed', 'N/A');
+-- ALTER TABLE article_species_details
+--     MODIFY health_status ENUM('Healthy', 'Diseased', 'Mixed', 'N/A');
+
+ALTER TABLE verified_authors
+    MODIFY COLUMN orcid VARCHAR(500) NULL;

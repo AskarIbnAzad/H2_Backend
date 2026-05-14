@@ -390,7 +390,7 @@ class ArticleController extends Controller
      */
     public function listArticlesMain(Request $req)
     {
-//        Log::info('$req', $req->suboption);
+        Log::info('Request Data: ' . json_encode($req->all(), JSON_PRETTY_PRINT));
         // Get parameters
         $page = $req->input('page', 1);
         $perPage = $req->input('per_page', 20);
@@ -419,8 +419,6 @@ class ArticleController extends Controller
 
         // === Folder filter – restrict to articles in a specific folder ===
         if ($folderId = $req->input('folder_id')) {
-            Log::info('folder id', [$folderId]);
-            Log::info('user id', [auth()->id()]);
             // Ensure the folder belongs to the authenticated user
             $folder = \App\Models\Folder::where('id', $folderId)
 //                ->where('user_id', auth()->id())
@@ -490,15 +488,23 @@ class ArticleController extends Controller
             });
         }
 
+        $diseases = array_merge(
+            (array) $req->input('diseases', []),
+            (array) $req->input('disease', [])
+        );
+
+        $diseases = array_values(array_unique($diseases));
+
+
         // Apply filters based on AND/OR logic
         $filters = [
-            'studyTypes' => $req->input('studyTypes', []),
+            'studyTypes' => $req->input('clinicalTrialDesign', []),
             'species' => $req->input('species', []),
             'researchTopics' => $req->input('researchTopics', []),
             'systems' => $req->input('systems', []),
             'organs' => $req->input('organs', []),
             'countries' => $req->input('countries', []),
-            'diseases' => $req->input('diseases', []),
+            'diseases' => $diseases,
             'administrationMethods' => $req->input('administrationMethods', []),
             'biomarkers' => $req->input('biomarkers', []),
             'years' => $req->input('years', []),
