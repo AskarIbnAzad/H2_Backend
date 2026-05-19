@@ -760,16 +760,32 @@ class AdminController extends Controller
         ]);
     }
 
-    public function featuredAuthor($id, $isFeatured = false)
+    public function featuredAuthor(Request $request, $id, $isFeatured = false)
     {
         $author = VerifiedAuthor::findOrFail($id);
-        $author->is_featured = filter_var($isFeatured, FILTER_VALIDATE_BOOLEAN);
+
+        $isFeaturedBool = filter_var($isFeatured, FILTER_VALIDATE_BOOLEAN);
+
+        if ($isFeaturedBool) {
+            $request->validate([
+                'profile_url' => 'required|string|max:50',
+            ]);
+
+            $author->is_featured = true;
+            $author->orcid = $request->profile_url;
+        } else {
+            $author->is_featured = false;
+            $author->orcid = null;
+        }
+
         $author->save();
 
         return response()->json([
             'status' => true,
             'author' => $author,
-            'message' => $author->is_featured ? 'Author marked as featured' : 'Author removed from featured',
+            'message' => $author->is_featured
+                ? 'Author marked as featured'
+                : 'Author removed from featured',
         ]);
     }
 

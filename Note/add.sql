@@ -93,5 +93,5 @@
 -- ALTER TABLE article_species_details
 --     MODIFY health_status ENUM('Healthy', 'Diseased', 'Mixed', 'N/A');
 
-ALTER TABLE verified_authors
-    MODIFY COLUMN orcid VARCHAR(500) NULL;
+-- ALTER TABLE verified_authors
+--     MODIFY COLUMN orcid VARCHAR(500) NULL;

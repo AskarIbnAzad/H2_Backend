@@ -974,6 +974,16 @@ class ArticleController extends Controller
             'addedBy',
         ]);
 
+        // Only ADMIN can see all articles
+        // Other users can see only their submitted/author articles
+        $currentUser = auth()->user();
+
+        if ($currentUser && (int) $currentUser->role_id !== 1) {
+            $query->whereHas('authors', function ($authorQ) use ($currentUser) {
+                $authorQ->where('article_authors.author_id', $currentUser->id);
+            });
+        }
+
         // Apply status filter (optional, no default)
         if ($req->has('status') && ! empty($req->status)) {
             $query->where('status', $req->status);
