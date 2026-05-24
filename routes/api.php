@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ClaimController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\FolderController;
+use App\Http\Controllers\NavigationController;
 use App\Http\Controllers\OrganDiseaseRelationController;
 use App\Http\Controllers\SavedSearchController;
 use App\Http\Controllers\TutorialController;
@@ -25,8 +26,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-//Askart Routes
-
+Route::get('/navigation',         [NavigationController::class, 'index']);
+Route::put('/navigation/{id}',     [NavigationController::class, 'update']);
 
 Route::get('/disease-data', [ArticleController::class, 'getData']);
 
