@@ -96,22 +96,22 @@
 -- ALTER TABLE verified_authors
 --     MODIFY COLUMN orcid VARCHAR(500) NULL;
 
-CREATE TABLE `navigation_items` (
-    `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
-    `parent_id` BIGINT UNSIGNED DEFAULT NULL,
-    `type` ENUM('nav_item', 'featured', 'section', 'section_item') NOT NULL,
-    `name` VARCHAR(255) DEFAULT NULL,
-    `path` VARCHAR(255) DEFAULT NULL,
-    `description` VARCHAR(255) DEFAULT NULL,
-    `image` VARCHAR(255) DEFAULT NULL,
-    `has_mega_menu` TINYINT(1) NOT NULL DEFAULT 0,
-    `is_active` TINYINT(1) NOT NULL DEFAULT 1,
-    `sort_order` INT NOT NULL DEFAULT 0,
-    `created_at` TIMESTAMP NULL DEFAULT NULL,
-    `updated_at` TIMESTAMP NULL DEFAULT NULL,
-    PRIMARY KEY (`id`),
-    KEY `navigation_items_parent_id_foreign` (`parent_id`),
-    CONSTRAINT `navigation_items_parent_id_foreign`
-        FOREIGN KEY (`parent_id`) REFERENCES `navigation_items` (`id`)
-            ON DELETE CASCADE
-)
+-- CREATE TABLE `navigation_items` (
+--     `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
+--     `parent_id` BIGINT UNSIGNED DEFAULT NULL,
+--     `type` ENUM('nav_item', 'featured', 'section', 'section_item') NOT NULL,
+--     `name` VARCHAR(255) DEFAULT NULL,
+--     `path` VARCHAR(255) DEFAULT NULL,
+--     `description` VARCHAR(255) DEFAULT NULL,
+--     `image` VARCHAR(255) DEFAULT NULL,
+--     `has_mega_menu` TINYINT(1) NOT NULL DEFAULT 0,
+--     `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+--     `sort_order` INT NOT NULL DEFAULT 0,
+--     `created_at` TIMESTAMP NULL DEFAULT NULL,
+--     `updated_at` TIMESTAMP NULL DEFAULT NULL,
+--     PRIMARY KEY (`id`),
+--     KEY `navigation_items_parent_id_foreign` (`parent_id`),
+--     CONSTRAINT `navigation_items_parent_id_foreign`
+--         FOREIGN KEY (`parent_id`) REFERENCES `navigation_items` (`id`)
+--             ON DELETE CASCADE
+-- )

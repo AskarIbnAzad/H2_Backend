@@ -26,8 +26,11 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/navigation',         [NavigationController::class, 'index']);
-Route::put('/navigation/{id}',     [NavigationController::class, 'update']);
+Route::get('/navigation/link', [NavigationController::class, 'forPublic']);
+Route::get('/navigation', [NavigationController::class, 'index']);
+Route::post('/navigation', [NavigationController::class, 'store']);
+Route::put('/navigation/{id}', [NavigationController::class, 'update']);
+Route::delete('/navigation/{id}', [NavigationController::class, 'destroy']);
 
 Route::get('/disease-data', [ArticleController::class, 'getData']);
 
