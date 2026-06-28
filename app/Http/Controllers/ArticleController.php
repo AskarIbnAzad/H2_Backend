@@ -21,10 +21,12 @@ use App\Models\ResearchTopic;
 use App\Models\Species;
 use App\Models\StudyType;
 use App\Models\System;
+use App\Models\User;
 use App\Models\VerifiedAuthor;
 use App\Services\ArticleTransformationService;
 use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -1160,6 +1162,9 @@ class ArticleController extends Controller
         // Total studies
         $totalStudies = Article::where('status', 'Verified')->count();
 
+        // Total studies
+        $totalStudies = Article::where('status', 'Verified')->count();
+
         // Human studies count
         $humanStudies = Article::where('status', 'Verified')
             ->whereHas('species', function ($q) {
@@ -1268,6 +1273,22 @@ class ArticleController extends Controller
                 return $this->transformService->transformToJson($article);
             });
 
+        $user = Auth::user();
+
+        $totalResearcher = User::where('role_id', 3)->count();
+        $userCount = User::count();
+
+        $myArticlesCount = 0;
+        $timeSpent = "00:00:00";
+
+        if ($user && $user->role === "Researcher") {
+            // Change user_id if your articles table uses researcher_id / created_by / submitted_by
+            $myArticlesCount = Article::where('user_id', $user->id)->count();
+
+            // Change this if time_spent is stored in another table
+            $timeSpent = $user->time_spent ?? "00:00:00";
+        }
+
         return response()->json([
             'status' => true,
             'message' => 'Data fetched successfully',
@@ -1282,6 +1303,12 @@ class ArticleController extends Controller
                 'researchTopics' => $topicsData,
                 'latest_articles' => $latestArticles,
                 'trending_articles' => $trendingArticles,
+
+                // Add these for dashboard cards
+                'totalResearcher' => $totalResearcher,
+                'userCount' => $userCount,
+                'my_articles_count' => $myArticlesCount,
+                'time_spent' => $timeSpent,
             ],
         ]);
     }
